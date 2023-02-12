@@ -9,11 +9,13 @@ def load_mt5_df(asset):
 def test_unit_temp_load_and_cleanup_from_mt5_1():
     stock_a = "BBAS3"
     df_first = load_mt5_df(stock_a)
-    new_df = pd.DataFrame()
-    new_df = load_and_cleanup_from_mt5(stock_a, new_df)
+
+    datasource = DataSourceMT5()
+    datasource.load(stock_a)
+
     assert df_first.shape == (2509, 1)
-    assert new_df.shape == (df_first.shape[0], 2)
-    assert stock_a in new_df.columns
+    assert datasource.prices_df.shape == (df_first.shape[0], 2)
+    assert stock_a in datasource.prices_df.columns
 
 def test_unit_temp_load_and_cleanup_from_mt5_2():
     stock_a = "BBAS3"
