@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from datasource import load_and_cleanup_from_mt5, select_datasource, DataSourceFake, DataSource
+from datasource import select_datasource, DataSourceFake, DataSource
 from datetime import datetime
 
 def load_mt5_df(asset):
@@ -33,19 +33,6 @@ def test_unit_temp_load_and_cleanup_from_mt5_2():
     assert dataframe_observed.shape == (dataframe_a.shape[0], 3)
     assert stock_a in dataframe_observed.columns
     assert stock_b in dataframe_observed.columns
-
-
-def test_usage():
-    # function import all list
-    prices_df = pd.DataFrame()
-    stock_list = ["BBAS3", "ABEV3"]
-    for asset in stock_list:
-        prices_df = load_and_cleanup_from_mt5(asset, prices_df)
-
-    prices_df=prices_df.set_index(["date"])
-    all_in_prices_df = [stock in prices_df.columns 
-                        for stock in stock_list]
-    assert all(all_in_prices_df)
 
 
 def test_usage_datasource():

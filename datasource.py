@@ -11,15 +11,6 @@ def load_mt5_file(asset):
     return series_close
 
 
-def load_and_cleanup_from_mt5(asset, prices_df):
-    series_close = load_mt5_file(asset)
-    if len(prices_df.columns)==0:
-        prices_df = series_close
-    else:
-        prices_df = pd.merge(prices_df, series_close, how='outer', on='date')
-    return prices_df
-
-
 class DataSource(ABC):
     def __init__(self):
         self._prices_df = pd.DataFrame()
