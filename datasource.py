@@ -3,11 +3,16 @@ from abc import ABC
 import abc
 
 
-def load_and_cleanup_from_mt5(asset, prices_df):
+def load_mt5_file(asset):
     df = pd.read_csv(f"data/MT5D1_{asset}.csv", delimiter="\t")
     series_close = df[["<CLOSE>", "<DATE>"]]
     series_close.columns = [asset, "date"]
     series_close.date = pd.to_datetime(series_close.date.str.replace(".", "-"))
+    return series_close
+
+
+def load_and_cleanup_from_mt5(asset, prices_df):
+    series_close = load_mt5_file(asset)
     if len(prices_df.columns)==0:
         prices_df = series_close
     else:
@@ -47,9 +52,9 @@ class DataSource(ABC):
         return self.prices_df[asset]
 
 class DataSourceMT5(DataSource):
-
     def load(self, asset):
-        self._prices_df = load_and_cleanup_from_mt5(asset, self._prices_df)
+        df = load_mt5_file(asset)
+        self.merge_pricedf(df)
     
     def fix_index(self):
         self._prices_df.set_index(["date"], inplace=True)
