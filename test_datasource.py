@@ -1,5 +1,5 @@
 import pandas as pd
-from datasource import load_and_cleanup_from_mt5, DataSourceMT5
+from datasource import load_and_cleanup_from_mt5, select_datasource
 
 
 def load_mt5_df(asset):
@@ -10,7 +10,7 @@ def test_unit_temp_load_and_cleanup_from_mt5_1():
     stock_a = "BBAS3"
     df_first = load_mt5_df(stock_a)
 
-    datasource = DataSourceMT5()
+    datasource = select_datasource()
     datasource.load(stock_a)
 
     assert df_first.shape == (2509, 1)
@@ -22,10 +22,12 @@ def test_unit_temp_load_and_cleanup_from_mt5_2():
     stock_b = "ABEV3"
     dataframe_a = load_mt5_df(stock_a)
     dataframe_b = load_mt5_df(stock_b)
-    dataframe_observed = pd.DataFrame()
-    dataframe_observed = load_and_cleanup_from_mt5(stock_a, dataframe_observed)
-    dataframe_observed = load_and_cleanup_from_mt5(stock_b, dataframe_observed)
 
+    datasource = select_datasource()
+    datasource.load(stock_a)
+    datasource.load(stock_b)
+
+    dataframe_observed = datasource.prices_df
     assert dataframe_a.shape == (2509, 1)
     assert dataframe_observed.shape == (dataframe_a.shape[0], 3)
     assert stock_a in dataframe_observed.columns
@@ -46,7 +48,7 @@ def test_usage():
 
 def test_usage_datasource():
     stock_list = ["BBAS3", "ABEV3"]
-    data_source = DataSourceMT5()
+    data_source = select_datasource()
 
     for stock in stock_list:
         data_source.load(stock)
