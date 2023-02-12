@@ -70,6 +70,31 @@ class TestFakeDataSource:
             {"date": datetime(year=2022, month=10, day=8), "price": 15},
         ]
         datasource.loadprices(stock, prices)
-        assert datasource.prices_df.shape == (4, 2)
 
+        assert datasource.prices_df.shape == (4, 2)
         assert stock in datasource.prices_df
+
+    def test_load_asset_B(self):
+        datasource = DataSourceFake()
+        stock_a = "fakestock"
+        prices_a = [
+            {"date": datetime(year=2022, month=10, day=5), "price": 10.5},
+            {"date": datetime(year=2022, month=10, day=6), "price": 11},
+            {"date": datetime(year=2022, month=10, day=7), "price": 12},
+            {"date": datetime(year=2022, month=10, day=8), "price": 15},
+        ]
+        stock_b = "fakestock_b"
+        prices_b = [
+            {"date": datetime(year=2022, month=10, day=5), "price": 100},
+            {"date": datetime(year=2022, month=10, day=6), "price": 101},
+            {"date": datetime(year=2022, month=10, day=7), "price": 102},
+            {"date": datetime(year=2022, month=10, day=8), "price": 103},
+            {"date": datetime(year=2022, month=10, day=9), "price": 104},
+        ]
+
+        datasource.loadprices(stock_b, prices_b)
+        datasource.loadprices(stock_a, prices_a)
+
+        assert datasource.prices_df.shape == (max(len(prices_a), len(prices_b)), 3)
+        assert stock_a in datasource.prices_df
+        assert stock_b in datasource.prices_df        

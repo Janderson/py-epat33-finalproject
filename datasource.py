@@ -17,12 +17,7 @@ def load_and_cleanup_from_mt5(asset, prices_df):
 
 class DataSource(ABC):
     def __init__(self):
-        self._prices_df = pd.DataFrame()
-        self.prices_df = self._prices_df
-
-    @property
-    def __prices_df(self):
-        return self._prices_df
+        self.prices_df = pd.DataFrame()
 
     def load(self):
         pass
@@ -34,7 +29,6 @@ class DataSource(ABC):
             self.prices_df = pd.merge(self.prices_df,
                                       dataframe,
                                       how='outer', on='date')
-
 
 
 class DataSourceMT5(DataSource):
