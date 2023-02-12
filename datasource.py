@@ -22,6 +22,8 @@ class DataSource(ABC):
 
     @property
     def prices_df(self):
+        if isinstance(self._filtered_prices_df, pd.DataFrame):
+            return self._filtered_prices_df
         return self._prices_df
 
     def load(self):
@@ -35,6 +37,14 @@ class DataSource(ABC):
                                       dataframe,
                                       how='outer', on='date')
 
+    def filter_by_year(self, start_year, end_year):
+        self._filtered_prices_df = self.prices_df \
+                                       .set_index(["date"]) \
+                                       .loc[str(start_year):str(end_year)] \
+                                       .reset_index()
+
+    def get(self, asset):
+        return self.prices_df[asset]
 
 class DataSourceMT5(DataSource):
 
@@ -44,11 +54,6 @@ class DataSourceMT5(DataSource):
     def fix_index(self):
         self._prices_df.set_index(["date"], inplace=True)
     
-    def get(self, asset):
-        return self._prices_df[asset]
-
-    def filter_by_year(self, start_date, end_date):
-        pass
 
 class DataSourcePyMT5(DataSource):
     pass

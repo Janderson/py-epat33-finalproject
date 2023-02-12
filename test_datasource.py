@@ -1,5 +1,6 @@
 import pandas as pd
-from datasource import load_and_cleanup_from_mt5, select_datasource, DataSourceFake
+import pytest
+from datasource import load_and_cleanup_from_mt5, select_datasource, DataSourceFake, DataSource
 from datetime import datetime
 
 def load_mt5_df(asset):
@@ -97,4 +98,50 @@ class TestFakeDataSource:
 
         assert datasource.prices_df.shape == (max(len(prices_a), len(prices_b)), 3)
         assert stock_a in datasource.prices_df
-        assert stock_b in datasource.prices_df        
+        assert stock_b in datasource.prices_df
+
+
+class TestFilterByDate:
+    @pytest.fixture
+    def stock_names(self):
+        return "fakestock", "fakestock_b"
+
+    @pytest.fixture
+    def fake_datasource(self, stock_names):
+        datasource = DataSourceFake()
+        stock_a = stock_names[0]
+        prices_a = [
+            {"date": datetime(year=2022, month=10, day=5), "price": 10.5},
+            {"date": datetime(year=2022, month=10, day=6), "price": 11},
+            {"date": datetime(year=2023, month=10, day=7), "price": 12},
+            {"date": datetime(year=2024, month=10, day=8), "price": 15},
+        ]
+        stock_b = stock_names[1]
+        prices_b = [
+            {"date": datetime(year=2022, month=10, day=5), "price": 100},
+            {"date": datetime(year=2022, month=10, day=6), "price": 101},
+            {"date": datetime(year=2023, month=10, day=7), "price": 102},
+            {"date": datetime(year=2024, month=10, day=8), "price": 103},
+        ]
+
+        datasource.loadprices(stock_b, prices_b)
+        datasource.loadprices(stock_a, prices_a)
+        return datasource
+
+    def test_filter_bydate_1(self, fake_datasource: DataSource, stock_names):
+        stock_a = stock_names[0]
+        stock_b = stock_names[1]
+        fake_datasource.filter_by_year("2022", "2022")
+        assert fake_datasource.prices_df.shape == (2, 3)
+        assert stock_a in fake_datasource.prices_df
+        assert stock_b in fake_datasource.prices_df
+        
+
+    def test_filter_bydate_2(self, fake_datasource: DataSource, stock_names):
+        stock_a = stock_names[0]
+        stock_b = stock_names[1]
+        fake_datasource.filter_by_year("2022", "2023")
+        assert fake_datasource.prices_df.shape == (3, 3)
+        assert stock_a in fake_datasource.prices_df
+        assert stock_b in fake_datasource.prices_df
+
