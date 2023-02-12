@@ -51,14 +51,11 @@ class DataSource(ABC):
     def get(self, asset):
         return self.prices_df[asset]
 
+
 class DataSourceMT5(DataSource):
     def load(self, asset):
-        df = load_mt5_file(asset)
-        self.merge_pricedf(df)
-    
-    def fix_index(self):
-        self._prices_df.set_index(["date"], inplace=True)
-    
+        self.merge_pricedf(load_mt5_file(asset))
+
 
 class DataSourcePyMT5(DataSource):
     pass

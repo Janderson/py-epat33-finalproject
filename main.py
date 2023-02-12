@@ -31,10 +31,9 @@ def cmd_load(stock_a, stock_b, years_setup, loopback, devpad):
     datasource.load(stock_a)
     datasource.load(stock_b)
 
-    datasource.fix_index()
 
+    datasource.filter_by_year(str(year_setup(years_setup)[0]), str(year_setup(years_setup)[1]))
     prices_df = datasource.prices_df
-    datasource.prices_df = prices_df.loc[str(year_setup(years_setup)[0]):str(year_setup(years_setup)[1])]
     insample_df = prices_df.loc['2012':'2015']
     outsample_df = prices_df.loc['2016':'2016']    
 
