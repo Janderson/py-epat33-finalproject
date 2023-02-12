@@ -1,6 +1,6 @@
 import pandas as pd
-from datasource import load_and_cleanup_from_mt5, select_datasource
-
+from datasource import load_and_cleanup_from_mt5, select_datasource, DataSourceFake
+from datetime import datetime
 
 def load_mt5_df(asset):
     return pd.read_csv(f"data/MT5D1_{asset}.csv")
@@ -33,6 +33,7 @@ def test_unit_temp_load_and_cleanup_from_mt5_2():
     assert stock_a in dataframe_observed.columns
     assert stock_b in dataframe_observed.columns
 
+
 def test_usage():
     # function import all list
     prices_df = pd.DataFrame()
@@ -56,3 +57,19 @@ def test_usage_datasource():
     all_in_prices_df = [stock in data_source.prices_df.columns 
                         for stock in stock_list]
     assert all(all_in_prices_df)
+
+
+class TestFakeDataSource:
+    def test_load_asset(self):
+        datasource = DataSourceFake()
+        stock = "fakestock"
+        prices = [
+            {"date": datetime(year=2022, month=10, day=5), "price": 10.5},
+            {"date": datetime(year=2022, month=10, day=6), "price": 11},
+            {"date": datetime(year=2022, month=10, day=7), "price": 12},
+            {"date": datetime(year=2022, month=10, day=8), "price": 15},
+        ]
+        datasource.loadprices(stock, prices)
+        assert datasource.prices_df.shape == (4, 2)
+
+        assert stock in datasource.prices_df

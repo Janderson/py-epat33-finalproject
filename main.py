@@ -21,7 +21,7 @@ def year_setup(years_setup):
 @cli.command("plot_ratio")
 @click.argument("stock_a")
 @click.argument("stock_b")
-@click.option("--years_setup", "years_setup", default="2011:2011", help="2011:2011")
+@click.option("--years_setup", "years_setup", default="2013:2013", help="2011:2011")
 @click.option("--loopback", "loopback", default="20", help="period of means")
 @click.option("--devpad", "devpad", default="2", help="devpad")
 def cmd_load(stock_a, stock_b, years_setup, loopback, devpad):
@@ -32,11 +32,9 @@ def cmd_load(stock_a, stock_b, years_setup, loopback, devpad):
     datasource.load(stock_b)
 
     datasource.fix_index()
-    
-
 
     prices_df = datasource.prices_df
-    datasource.prices_df = prices_df.loc[year_setup(years_setup)[0]: year_setup(years_setup)[1]]
+    datasource.prices_df = prices_df.loc[str(year_setup(years_setup)[0]):str(year_setup(years_setup)[1])]
     insample_df = prices_df.loc['2012':'2015']
     outsample_df = prices_df.loc['2016':'2016']    
 
@@ -46,13 +44,14 @@ def cmd_load(stock_a, stock_b, years_setup, loopback, devpad):
         index=datasource.prices_df.index
     )
 
-    backtest_df = backtest_functions.back_buildratio(backtest_df, devpad=int(devpad), loopback_period=int(loopback))
+    backtest_df = backtest_functions.back_buildratio(backtest_df, devpad=float(devpad), loopback_period=int(loopback))
 
     backtest_functions.plot_ratio(backtest_df)
-    plt.show()
-
     os.makedirs("results/", exist_ok=True)
+    filename = f"results/ratio_{stock_a}_{stock_b}.png"
+    plt.savefig(filename)
     backtest_df.to_csv(f"results/pair_{stock_a}_{stock_b}.csv")
+    print(f"arquivo salvo: {filename}")
 
 
 cli()

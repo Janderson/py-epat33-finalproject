@@ -17,15 +17,27 @@ def load_and_cleanup_from_mt5(asset, prices_df):
 
 class DataSource(ABC):
     def __init__(self):
-        self.prices_df = pd.DataFrame()
+        self._prices_df = pd.DataFrame()
+        self.prices_df = self._prices_df
+
+    @property
+    def __prices_df(self):
+        return self._prices_df
 
     def load(self):
         pass
 
+    def merge_pricedf(self, dataframe):
+        if len(self.prices_df.columns)==0:
+            self.prices_df = dataframe
+        else:
+            self.prices_df = pd.merge(self.prices_df,
+                                      dataframe,
+                                      how='outer', on='date')
+
+
 
 class DataSourceMT5(DataSource):
-    def __init__(self):
-        self.prices_df = pd.DataFrame()
 
     def load(self, asset):
         self.prices_df = load_and_cleanup_from_mt5(asset, self.prices_df)
@@ -36,6 +48,8 @@ class DataSourceMT5(DataSource):
     def get(self, asset):
         return self.prices_df[asset]
 
+    def filter_by_year(self, start_date, end_date):
+        pass
 
 class DataSourcePyMT5(DataSource):
     pass
@@ -43,3 +57,12 @@ class DataSourcePyMT5(DataSource):
 
 def select_datasource():
     return DataSourceMT5()
+
+
+class DataSourceFake(DataSource):
+    
+    def loadprices(self, asset, prices):
+        df = pd.DataFrame(prices)
+        df.columns = ["date", asset]
+        self.merge_pricedf(df)
+        return df
