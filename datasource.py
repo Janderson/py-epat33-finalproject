@@ -31,6 +31,10 @@ class DataSource(ABC):
             return self._filtered_prices_df
         return self._prices_df
 
+    @property
+    def index(self):
+        return self.prices_df.index
+
     def load(self):
         pass
 

@@ -40,7 +40,7 @@ def cmd_load(stock_a, stock_b, years_setup, loopback, devpad):
     backtest_df = backtest_functions.back_build_df(
         prices_A=datasource.get(stock_a),
         prices_B=datasource.get(stock_b),
-        index=datasource.prices_df.index
+        index=datasource.index
     )
 
     backtest_df = backtest_functions.back_buildratio(backtest_df, devpad=float(devpad), loopback_period=int(loopback))
